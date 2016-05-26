@@ -23,6 +23,7 @@
 #include "GSDeviceOGL.h"
 #include "GLState.h"
 #include "GSUtil.h"
+#include "GSOsdFreeType.h"
 #include <fstream>
 
 #include "res/glsl_source.h"
@@ -60,6 +61,7 @@ GSDeviceOGL::GSDeviceOGL()
 	, m_palette_ss(0)
 	, m_vs_cb(NULL)
 	, m_ps_cb(NULL)
+	, m_font(NULL)
 	, m_shader(NULL)
 {
 	memset(&m_merge_obj, 0, sizeof(m_merge_obj));
@@ -392,6 +394,14 @@ bool GSDeviceOGL::Create(GSWnd* wnd)
 
 		PboPool::Init();
 	}
+
+	// ****************************************************************
+	// Texture Font (OSD)
+	// ****************************************************************
+	GSVector2i tex_font = m_osd.get_texture_font_size();
+	m_font = new GSTextureOGL(GSTextureOGL::Texture, tex_font.x, tex_font.y, GL_R8, m_fbo_read);
+	ClearRenderTarget(m_font, 0);
+	m_osd.upload_texture_atlas(m_font);
 
 	// ****************************************************************
 	// Finish window setup and backbuffer
@@ -1217,6 +1227,37 @@ void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture
 	// End
 	// ************************************
 
+	EndScene();
+}
+
+void GSDeviceOGL::RenderString(const std::string& text, GSTexture* dt)
+{
+	BeginScene();
+
+	m_shader->BindPipeline(m_convert.vs, 0, m_convert.ps[18]);
+
+	OMSetDepthStencilState(m_convert.dss);
+	OMSetBlendState(GSDeviceOGL::m_MERGE_BLEND);
+	OMSetRenderTargets(dt, NULL);
+
+	// FIXME that not efficient but let's do a proof-of-concept first
+	GSVector4* vertices = (GSVector4*)_aligned_malloc(6*sizeof(GSVector4)*(text.size()), 32);
+	// Offset and scaling. Note scaling could also be done in shader (require gl3/dx10)
+	GSVector2i ds = dt->GetSize();
+	GSVector4 r(-0.98f, 0.95f, 2.0f/ds.x, 2.0f/ds.y);
+
+	m_osd.text_to_vertex(vertices, text.c_str(), r);
+
+	//IASetVertexState(m_vb_sr);
+	IASetVertexBuffer(vertices, 6*text.size());
+	IASetPrimitiveTopology(GL_TRIANGLES);
+
+	PSSetShaderResource(0, m_font);
+	PSSetSamplerState(m_convert.pt);
+
+	DrawPrimitive();
+
+	_aligned_free(vertices);
 	EndScene();
 }
 
