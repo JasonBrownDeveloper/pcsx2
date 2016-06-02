@@ -1249,7 +1249,7 @@ void GSDeviceOGL::RenderString(const std::string& text, GSTexture* dt)
 	m_osd.text_to_vertex(vertices, text.c_str(), r);
 
 	//IASetVertexState(m_vb_sr);
-	IASetVertexBuffer(vertices, 6*text.size());
+	IASetVertexBuffer(vertices, 3*text.size());
 	IASetPrimitiveTopology(GL_TRIANGLES);
 
 	PSSetShaderResource(0, m_font);
