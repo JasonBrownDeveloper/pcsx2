@@ -277,7 +277,7 @@ void ps_main17()
 #ifdef ps_main18
 void ps_main18()
 {
-	float alpha = texture(TextureSampler, PSin_t);
+	float alpha = sample_c().r;
 	SV_Target0 = vec4(1, 0, 0, alpha);
 }
 #endif

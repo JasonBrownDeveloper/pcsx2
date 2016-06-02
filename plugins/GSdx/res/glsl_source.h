@@ -408,7 +408,7 @@ static const char* const convert_glsl =
 	"#ifdef ps_main18\n"
 	"void ps_main18()\n"
 	"{\n"
-	"	float alpha = texture(TextureSampler, PSin_t);\n"
+	"	float alpha = sample_c().r;\n"
 	"	SV_Target0 = vec4(1, 0, 0, alpha);\n"
 	"}\n"
 	"#endif\n"
