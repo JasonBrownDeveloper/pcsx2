@@ -98,15 +98,15 @@ void OsdManager::upload_texture_atlas(GSTexture* t) {
 void OsdManager::text_to_vertex(GSVector4* dst, const char* text, GSVector4 r)
 {
 	uint32 n = 0;
-	for (const char* p = text; *p; p++) {
-		float x2 =  r.x + c_info[*p].bl * r.w;
-		float y2 = -r.y - c_info[*p].bt * r.z;
-		float w = c_info[*p].bw * r.w;
-		float h = c_info[*p].bh * r.z;
+	for (const char* p = (unsigned char *)text; *p; p++) {
+		float x2 =  r.x + c_info[*p].bl * r.z;
+		float y2 = -r.y - c_info[*p].bt * r.w;
+		float w = c_info[*p].bw * r.z;
+		float h = c_info[*p].bh * r.w;
 
 		/* Advance the cursor to the start of the next character */
-		r.x += c_info[*p].ax * r.w;
-		r.y += c_info[*p].ay * r.z;
+		r.x += c_info[*p].ax * r.z;
+		r.y += c_info[*p].ay * r.w;
 
 		// NOTE: In the future we could use only a SHORT for texture
 		// coordinate. And do the division by the texture size on the vertex
