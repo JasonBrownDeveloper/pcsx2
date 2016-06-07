@@ -274,6 +274,8 @@ bool GSDeviceOGL::Create(GSWnd* wnd)
 			string pretty_name = "Convert pipe " + to_string(i);
 			m_convert.ps[i] = m_shader->LinkPipeline(pretty_name, vs, 0, ps);
 		}
+		GLint loc = glGetUniformLocation(ps, "textColor");
+		glProgramUniform4f(ps, loc, 0.0f, 0.0f, 1.0f, 1.0f);
 
 		PSSamplerSelector point;
 		m_convert.pt = GetSamplerID(point);
@@ -1234,22 +1236,24 @@ void GSDeviceOGL::RenderString(const std::string& text, GSTexture* dt)
 {
 	BeginScene();
 
-	m_shader->BindPipeline(m_convert.vs, 0, m_convert.ps[18]);
+	m_shader->BindPipeline(m_convert.ps[18]);
 
 	OMSetDepthStencilState(m_convert.dss);
 	OMSetBlendState(GSDeviceOGL::m_MERGE_BLEND);
 	OMSetRenderTargets(dt, NULL);
 
 	// FIXME that not efficient but let's do a proof-of-concept first
-	GSVector4* vertices = (GSVector4*)_aligned_malloc(6*sizeof(GSVector4)*(text.size()), 32);
+	GSVertexPT1* vertices = (GSVertexPT1*)_aligned_malloc(6*sizeof(GSVertexPT1)*(text.size()), 32);
 	// Offset and scaling. Note scaling could also be done in shader (require gl3/dx10)
 	GSVector2i ds = dt->GetSize();
-	GSVector4 r(-0.98f, 0.95f, 2.0f/ds.x, 2.0f/ds.y);
+	float sx = 2.0f/ds.x;
+	float sy = 2.0f/ds.y;
+	GSVector4 r(-1 + 8 * sx, 1 - (48*2+2) * sy, sx, sy);
 
 	m_osd.text_to_vertex(vertices, text.c_str(), r);
 
 	//IASetVertexState(m_vb_sr);
-	IASetVertexBuffer(vertices, 3*text.size());
+	IASetVertexBuffer(vertices, 6*text.size());
 	IASetPrimitiveTopology(GL_TRIANGLES);
 
 	PSSetShaderResource(0, m_font);

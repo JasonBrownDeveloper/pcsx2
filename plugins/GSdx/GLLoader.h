@@ -238,6 +238,8 @@ extern   PFNGLSAMPLERPARAMETERFPROC             glSamplerParameterf;
 extern   PFNGLSAMPLERPARAMETERIPROC             glSamplerParameteri;
 extern   PFNGLSHADERSOURCEPROC                  glShaderSource;
 extern   PFNGLUNIFORM1IPROC                     glUniform1i;
+extern   PFNGLPROGRAMUNIFORM4FPROC              glProgramUniform4f;
+extern   PFNGLGETUNIFORMLOCATIONPROC            glGetUniformLocation;
 extern   PFNGLUNMAPBUFFERPROC                   glUnmapBuffer;
 extern   PFNGLUSEPROGRAMSTAGESPROC              glUseProgramStages;
 extern   PFNGLVERTEXATTRIBIPOINTERPROC          glVertexAttribIPointer;

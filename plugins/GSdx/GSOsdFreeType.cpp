@@ -64,8 +64,7 @@ OsdManager::OsdManager() : atlas_h(0), atlas_w(0), ascii_start(32), ascii_stop(1
 		return;
 	}
 
-	//error = FT_Set_Char_Size(face, 0, 16*64, 0, 96); // 16 point and 96 dpi
-	error = FT_Set_Char_Size(face, 0, 32*64, 0, 72);
+	error = FT_Set_Pixel_Sizes(face, 0, 48*2);;
 	if (error) {
 		fprintf(stderr, "Failed to init the face size\n");
 		return;
@@ -92,13 +91,14 @@ void OsdManager::upload_texture_atlas(GSTexture* t) {
 		GSVector4i r(c_info[i].tx, 0, c_info[i].tx+c_info[i].bw, c_info[i].bh);
 		if (r.width())
 			t->Update(r, face->glyph->bitmap.buffer, c_info[i].bw);
+
 	}
 }
 
-void OsdManager::text_to_vertex(GSVector4* dst, const char* text, GSVector4 r)
+void OsdManager::text_to_vertex(GSVertexPT1* dst, const char* text, GSVector4 r)
 {
 	uint32 n = 0;
-	for (const char* p = (unsigned char *)text; *p; p++) {
+	for (const char* p = text; *p; p++) {
 		float x2 =  r.x + c_info[*p].bl * r.z;
 		float y2 = -r.y - c_info[*p].bt * r.w;
 		float w = c_info[*p].bw * r.z;
@@ -111,11 +111,17 @@ void OsdManager::text_to_vertex(GSVector4* dst, const char* text, GSVector4 r)
 		// NOTE: In the future we could use only a SHORT for texture
 		// coordinate. And do the division by the texture size on the vertex
 		// shader (need to drop dx9 compatibility)
-		dst[n++] = GSVector4(x2    , -y2    , (float)c_info[*p].tx / (float)atlas_w                   , 0.0f);
-		dst[n++] = GSVector4(x2 + w, -y2    , (float)(c_info[*p].tx + c_info[*p].bw) / (float)atlas_w , 0.0f);
-		dst[n++] = GSVector4(x2    , -y2 - h, (float)c_info[*p].tx / atlas_w                          , (float)c_info[*p].bh / (float)atlas_h);
-		dst[n++] = GSVector4(x2 + w, -y2    , (float)(c_info[*p].tx + c_info[*p].bw) / (float)atlas_w , 0.0f);
-		dst[n++] = GSVector4(x2    , -y2 - h, (float)c_info[*p].tx / atlas_w                          , (float)c_info[*p].bh / (float)atlas_h);
-		dst[n++] = GSVector4(x2 + w, -y2 - h, (float)(c_info[*p].tx + c_info[*p].bw) / (float)atlas_w , (float)c_info[*p].bh / (float)atlas_h);
+		dst[n++] = (GSVertexPT1){GSVector4(x2    , -y2    , 0.0f, 0.0f)
+                            ,GSVector2((float)c_info[*p].tx / (float)atlas_w                   , 0.0f                                 )};
+		dst[n++] = (GSVertexPT1){GSVector4(x2 + w, -y2    , 0.0f, 0.0f)
+                            ,GSVector2((float)(c_info[*p].tx + c_info[*p].bw) / (float)atlas_w , 0.0f                                 )};
+		dst[n++] = (GSVertexPT1){GSVector4(x2    , -y2 - h, 0.0f, 0.0f)
+                            ,GSVector2((float)c_info[*p].tx / atlas_w                          , (float)c_info[*p].bh / (float)atlas_h)};
+		dst[n++] = (GSVertexPT1){GSVector4(x2 + w, -y2    , 0.0f, 0.0f)
+                            ,GSVector2((float)(c_info[*p].tx + c_info[*p].bw) / (float)atlas_w , 0.0f                                 )};
+		dst[n++] = (GSVertexPT1){GSVector4(x2    , -y2 - h, 0.0f, 0.0f)
+                            ,GSVector2((float)c_info[*p].tx / atlas_w                          , (float)c_info[*p].bh / (float)atlas_h)};
+		dst[n++] = (GSVertexPT1){GSVector4(x2 + w, -y2 - h, 0.0f, 0.0f)
+                            ,GSVector2((float)(c_info[*p].tx + c_info[*p].bw) / (float)atlas_w , (float)c_info[*p].bh / (float)atlas_h)};
 	}
 }

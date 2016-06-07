@@ -22,6 +22,7 @@
 
 #include "stdafx.h"
 #include "GSVector.h"
+#include "GSVertex.h"
 #include "GSTexture.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -59,5 +60,5 @@ class OsdManager {
 
 	GSVector2i get_texture_font_size();
 	void upload_texture_atlas(GSTexture* t);
-	void text_to_vertex(GSVector4* dst, const char* text, GSVector4 r);
+	void text_to_vertex(GSVertexPT1* dst, const char* text, GSVector4 r);
 };
