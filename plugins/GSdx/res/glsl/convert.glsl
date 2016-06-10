@@ -275,11 +275,11 @@ void ps_main17()
 #endif
 
 #ifdef ps_main18
-uniform vec4 textColor;
+uniform vec4 TextColor;
 
 void ps_main18()
 {
-	SV_Target0 = textColor * vec4(1.0, 1.0, 1.0, sample_c().r);
+	SV_Target0 = TextColor * vec4(1.0, 1.0, 1.0, sample_c().r);
 }
 #endif
 

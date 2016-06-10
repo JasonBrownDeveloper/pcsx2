@@ -28,7 +28,7 @@
 #include "GSUniformBufferOGL.h"
 #include "GSShaderOGL.h"
 #include "GLState.h"
-#include "GSOsdFreeType.h"
+#include "GSOsdManager.h"
 
 // A couple of flag to determine the blending behavior
 #define BLEND_A_MAX		(0x100) // Impossible blending uses coeff bigger than 1
@@ -465,8 +465,11 @@ public:
 	PSConstantBuffer m_ps_cb_cache;
 	MiscConstantBuffer m_misc_cb_cache;
 
-	OsdManager    m_osd;
 	GSTextureOGL* m_font;
+
+  GLuint m_osdFragmentShaderProgram;
+  GLint m_osdTextColorUniformLocation;
+  GSVertexPT1 m_WorkVertexPT1[256];
 
 	GSTexture* CreateSurface(int type, int w, int h, bool msaa, int format);
 	GSTexture* FetchSurface(int type, int w, int h, bool msaa, int format);
@@ -476,7 +479,7 @@ public:
 	void DoFXAA(GSTexture* sTex, GSTexture* dTex) final;
 	void DoShadeBoost(GSTexture* sTex, GSTexture* dTex) final;
 	void DoExternalFX(GSTexture* sTex, GSTexture* dTex) final;
-	void RenderString(const std::string& text, GSTexture* dt);
+  void RenderOsd(GSTexture* dt);
 
 	void OMAttachRt(GSTextureOGL* rt = NULL);
 	void OMAttachDs(GSTextureOGL* ds = NULL);

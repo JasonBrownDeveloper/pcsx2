@@ -82,7 +82,7 @@ set(GSdxSources
     GSRendererNull.cpp
     GSRendererOGL.cpp
     GSRendererSW.cpp
-	GSOsdFreeType.cpp
+	GSOsdManager.cpp
     GSSetting.cpp
     GSSetupPrimCodeGenerator.cpp
     GSSetupPrimCodeGenerator.x86.avx.cpp

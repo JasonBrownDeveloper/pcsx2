@@ -26,8 +26,10 @@
 #include "GSTexture.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include <vector>
+#include <string>
 
-class OsdManager {
+class GSOsdManager {
 	struct character_info {
 		uint32 ax; // advance.x
 		uint32 ay; // advance.y
@@ -38,11 +40,14 @@ class OsdManager {
 		uint32 bl; // bitmap_left;
 		uint32 bt; // bitmap_top;
 
-		uint32 tx; // x offset of glyph
+		float tx; // x offset of glyph
+		float ty; // y offset of glyph
 	} c_info[128];
 
-	FT_Library library;
-	FT_Face	   face;
+	FT_Library m_library;
+	FT_Face	   m_face;
+  std::string m_font;
+  FT_UInt    m_size;
 
 	uint32 atlas_h;
 	uint32 atlas_w;
@@ -52,13 +57,40 @@ class OsdManager {
 
 	void compute_glyph_size();
 
+  struct log_info {
+    GSVector4 color;
+    std::string msg;
+  };
+
+  log_info *m_log;
+  unsigned m_log_count;
+  unsigned m_log_len;
+
+  GSVector4 m_WorkVector4[6];
+  GSVector2 m_WorkVector2[6];
+
+  unsigned ExpandAligned(void **mem, size_t block, unsigned len);
+
+  unsigned m_grp_len;
+  unsigned m_elem_len;
 
 	public:
 
-	OsdManager();
-	~OsdManager();
+	GSOsdManager();
+	~GSOsdManager();
+
+  void LoadFont();
+  void LoadSize();
 
 	GSVector2i get_texture_font_size();
 	void upload_texture_atlas(GSTexture* t);
-	void text_to_vertex(GSVertexPT1* dst, const char* text, GSVector4 r);
+  
+  void Log(std::string msg); 
+
+  void GeneratePrimitives(float m_sx, float m_sy);
+  unsigned NumberOfGroups;
+  GSVector4* Color;
+  std::vector<unsigned> NumberOfElements;
+  GSVector4* Vertex;
+  GSVector2* Texcoord;
 };

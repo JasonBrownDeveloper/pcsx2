@@ -23,7 +23,7 @@
 #include "GSDeviceOGL.h"
 #include "GLState.h"
 #include "GSUtil.h"
-#include "GSOsdFreeType.h"
+#include "GSOsdManager.h"
 #include <fstream>
 
 #include "res/glsl_source.h"
@@ -273,9 +273,11 @@ bool GSDeviceOGL::Create(GSWnd* wnd)
 			ps = m_shader->Compile("convert.glsl", format("ps_main%d", i), GL_FRAGMENT_SHADER, convert_glsl);
 			string pretty_name = "Convert pipe " + to_string(i);
 			m_convert.ps[i] = m_shader->LinkPipeline(pretty_name, vs, 0, ps);
+      if(i == 18) {
+        m_osdFragmentShaderProgram = ps;
+        m_osdTextColorUniformLocation = glGetUniformLocation(ps, "TextColor");
+      }
 		}
-		GLint loc = glGetUniformLocation(ps, "textColor");
-		glProgramUniform4f(ps, loc, 0.0f, 0.0f, 1.0f, 1.0f);
 
 		PSSamplerSelector point;
 		m_convert.pt = GetSamplerID(point);
@@ -1232,7 +1234,7 @@ void GSDeviceOGL::StretchRect(GSTexture* sTex, const GSVector4& sRect, GSTexture
 	EndScene();
 }
 
-void GSDeviceOGL::RenderString(const std::string& text, GSTexture* dt)
+void GSDeviceOGL::RenderOsd(GSTexture* dt)
 {
 	BeginScene();
 
@@ -1242,26 +1244,37 @@ void GSDeviceOGL::RenderString(const std::string& text, GSTexture* dt)
 	OMSetBlendState(GSDeviceOGL::m_MERGE_BLEND);
 	OMSetRenderTargets(dt, NULL);
 
-	// FIXME that not efficient but let's do a proof-of-concept first
-	GSVertexPT1* vertices = (GSVertexPT1*)_aligned_malloc(6*sizeof(GSVertexPT1)*(text.size()), 32);
-	// Offset and scaling. Note scaling could also be done in shader (require gl3/dx10)
-	GSVector2i ds = dt->GetSize();
-	float sx = 2.0f/ds.x;
-	float sy = 2.0f/ds.y;
-	GSVector4 r(-1 + 8 * sx, 1 - (48*2+2) * sy, sx, sy);
-
-	m_osd.text_to_vertex(vertices, text.c_str(), r);
-
-	//IASetVertexState(m_vb_sr);
-	IASetVertexBuffer(vertices, 6*text.size());
-	IASetPrimitiveTopology(GL_TRIANGLES);
-
 	PSSetShaderResource(0, m_font);
 	PSSetSamplerState(m_convert.pt);
 
-	DrawPrimitive();
+	IASetPrimitiveTopology(GL_TRIANGLES);
 
-	_aligned_free(vertices);
+	// Note scaling could also be done in shader (require gl3/dx10)
+	GSVector2i ds = dt->GetSize();
+	m_osd.GeneratePrimitives(2.0f/ds.x, 2.0f/ds.y);
+
+  unsigned index = 0;
+  for(unsigned group = 0; group < m_osd.NumberOfGroups; ++group) {
+
+    glProgramUniform4f(m_osdFragmentShaderProgram
+                      ,m_osdTextColorUniformLocation
+                      ,m_osd.Color[group].r
+                      ,m_osd.Color[group].g
+                      ,m_osd.Color[group].b
+                      ,m_osd.Color[group].a);
+
+    for(unsigned element = 0; element < m_osd.NumberOfElements[group]; ) {
+      unsigned j;
+      for(j = 0; element < m_osd.NumberOfElements[group] && j < sizeof(m_WorkVertexPT1) / sizeof(m_WorkVertexPT1[0]); ++j, ++element) {
+        m_WorkVertexPT1[j].p = m_osd.Vertex[index];
+        m_WorkVertexPT1[j].t = m_osd.Texcoord[index];
+        ++index;
+      }
+      IASetVertexBuffer(m_WorkVertexPT1, j);
+      DrawPrimitive();
+    }
+  }
+
 	EndScene();
 }
 

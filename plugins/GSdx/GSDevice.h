@@ -25,6 +25,7 @@
 #include "GSTexture.h"
 #include "GSVertex.h"
 #include "GSAlignedClass.h"
+#include "GSOsdManager.h"
 
 enum ShaderConvert {
 	ShaderConvert_COPY = 0,
@@ -114,6 +115,7 @@ protected:
 	GSTexture* m_shadeboost;
 	GSTexture* m_1x1;
 	GSTexture* m_current;
+  GSOsdManager m_osd;
 	struct {size_t stride, start, count, limit;} m_vertex;
 	struct {size_t start, count, limit;} m_index;
 	unsigned int m_frame; // for ageing the pool
@@ -180,7 +182,7 @@ public:
 	void FXAA();
 	void ShadeBoost();
 	void ExternalFX();
-	virtual void RenderString(const std::string& text, GSTexture* dt) {};
+  virtual void RenderOsd(GSTexture* dt) {};
 
 	bool ResizeTexture(GSTexture** t, int w, int h);
 
@@ -190,6 +192,7 @@ public:
 	void PurgePool();
 
 	virtual void PrintMemoryUsage();
+
 };
 
 struct GSAdapter
