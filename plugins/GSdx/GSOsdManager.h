@@ -42,6 +42,7 @@ class GSOsdManager {
 
 		float tx; // x offset of glyph
 		float ty; // y offset of glyph
+    float tw;
 	} c_info[128];
 
 	FT_Library m_library;

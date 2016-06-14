@@ -59,8 +59,6 @@ void GSOsdManager::LoadSize() {
 		c_info[i].bl = m_face->glyph->bitmap_left;
 		c_info[i].bt = m_face->glyph->bitmap_top;
 
-		c_info[i].tx = atlas_w;
-
 		// Size of atlas
 		atlas_w += m_face->glyph->bitmap.width;
 		atlas_h = std::max(atlas_h, (uint32)m_face->glyph->bitmap.rows);
@@ -117,6 +115,7 @@ void GSOsdManager::upload_texture_atlas(GSTexture* t) {
 
     c_info[i].tx = (float)x / atlas_w;
     c_info[i].ty = (float)c_info[i].bh / atlas_h;
+    c_info[i].tw = (float)c_info[i].bw / atlas_w;
 
     x += c_info[i].bw;
 	}
@@ -175,12 +174,12 @@ void GSOsdManager::GeneratePrimitives(float m_sx, float m_sy) {
       m_WorkVector4[4] = GSVector4(x2    , -y2 - h, 0.0f, 0.0f);
       m_WorkVector4[5] = GSVector4(x2 + w, -y2 - h, 0.0f, 0.0f);
 
-      m_WorkVector2[0] = GSVector2(c_info[*p].tx                          , 0.0f         );
-      m_WorkVector2[1] = GSVector2(c_info[*p].tx + ((float)c_info[*p].bw / atlas_w), 0.0f         );
-      m_WorkVector2[2] = GSVector2(c_info[*p].tx                          , c_info[*p].ty);
-      m_WorkVector2[3] = GSVector2(c_info[*p].tx + ((float)c_info[*p].bw / atlas_w), 0.0f         );
-      m_WorkVector2[4] = GSVector2(c_info[*p].tx                          , c_info[*p].ty);
-      m_WorkVector2[5] = GSVector2(c_info[*p].tx + ((float)c_info[*p].bw / atlas_w), c_info[*p].ty);
+      m_WorkVector2[0] = GSVector2(c_info[*p].tx                , 0.0f         );
+      m_WorkVector2[1] = GSVector2(c_info[*p].tx + c_info[*p].tw, 0.0f         );
+      m_WorkVector2[2] = GSVector2(c_info[*p].tx                , c_info[*p].ty);
+      m_WorkVector2[3] = GSVector2(c_info[*p].tx + c_info[*p].tw, 0.0f         );
+      m_WorkVector2[4] = GSVector2(c_info[*p].tx                , c_info[*p].ty);
+      m_WorkVector2[5] = GSVector2(c_info[*p].tx + c_info[*p].tw, c_info[*p].ty);
 
       if(NumberOfElements[NumberOfGroups]+6 >= m_elem_len) {
         ExpandAligned((void **)&Vertex, sizeof(*Vertex), m_elem_len);
