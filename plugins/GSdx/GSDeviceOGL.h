@@ -467,8 +467,6 @@ public:
 
 	GSTextureOGL* m_font;
 
-  GLuint m_osdFragmentShaderProgram;
-  GLint m_osdTextColorUniformLocation;
   GSVertexPT1 m_WorkVertexPT1[256];
 
 	GSTexture* CreateSurface(int type, int w, int h, bool msaa, int format);

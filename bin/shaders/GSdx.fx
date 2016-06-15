@@ -49,6 +49,7 @@ in SHADER
 {
     vec4 p;
     vec2 t;
+    vec4 c;
 } PSin;
 
 layout(location = 0) out vec4 SV_Target0;
@@ -74,12 +75,14 @@ struct VS_INPUT
 {
     float4 p : POSITION;
     float2 t : TEXCOORD0;
+    float4 c : COLOR;
 };
 
 struct VS_OUTPUT
 {
     float4 p : SV_Position;
     float2 t : TEXCOORD0;
+    float4 c : COLOR;
 };
 
 struct PS_OUTPUT

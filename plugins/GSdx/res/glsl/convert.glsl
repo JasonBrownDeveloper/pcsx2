@@ -5,6 +5,7 @@
 
 layout(location = 0) in vec2 POSITION;
 layout(location = 1) in vec2 TEXCOORD0;
+layout(location = 7) in vec4 COLOR;
 
 // FIXME set the interpolation (don't know what dx do)
 // flat means that there is no interpolation. The value given to the fragment shader is based on the provoking vertex conventions.
@@ -18,12 +19,14 @@ out SHADER
 {
     vec4 p;
     vec2 t;
+    vec4 c;
 } VSout;
 
 void vs_main()
 {
     VSout.p = vec4(POSITION, 0.5f, 1.0f);
     VSout.t = TEXCOORD0;
+    VSout.c = COLOR;
     gl_Position = vec4(POSITION, 0.5f, 1.0f); // NOTE I don't know if it is possible to merge POSITION_OUT and gl_Position
 }
 
@@ -35,6 +38,7 @@ in SHADER
 {
     vec4 p;
     vec2 t;
+    vec4 c;
 } PSin;
 
 // Give a different name so I remember there is a special case!
@@ -275,11 +279,9 @@ void ps_main17()
 #endif
 
 #ifdef ps_main18
-uniform vec4 TextColor;
-
 void ps_main18()
 {
-	SV_Target0 = TextColor * vec4(1.0, 1.0, 1.0, sample_c().r);
+	SV_Target0 = PSin.c * vec4(1.0, 1.0, 1.0, sample_c().r);
 }
 #endif
 

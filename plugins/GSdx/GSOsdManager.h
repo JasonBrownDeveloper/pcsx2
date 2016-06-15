@@ -59,20 +59,17 @@ class GSOsdManager {
 	void compute_glyph_size();
 
   struct log_info {
-    GSVector4 color;
+    uint32 color;
     std::string msg;
   };
 
-  log_info *m_log;
-  unsigned m_log_count;
-  unsigned m_log_len;
+  std::vector<log_info> m_log;
 
   GSVector4 m_WorkVector4[6];
   GSVector2 m_WorkVector2[6];
 
   unsigned ExpandAligned(void **mem, size_t block, unsigned len);
 
-  unsigned m_grp_len;
   unsigned m_elem_len;
 
 	public:
@@ -90,7 +87,7 @@ class GSOsdManager {
 
   void GeneratePrimitives(float m_sx, float m_sy);
   unsigned NumberOfGroups;
-  GSVector4* Color;
+  std::vector<uint32> Color;
   std::vector<unsigned> NumberOfElements;
   GSVector4* Vertex;
   GSVector2* Texcoord;

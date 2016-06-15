@@ -273,10 +273,6 @@ bool GSDeviceOGL::Create(GSWnd* wnd)
 			ps = m_shader->Compile("convert.glsl", format("ps_main%d", i), GL_FRAGMENT_SHADER, convert_glsl);
 			string pretty_name = "Convert pipe " + to_string(i);
 			m_convert.ps[i] = m_shader->LinkPipeline(pretty_name, vs, 0, ps);
-      if(i == 18) {
-        m_osdFragmentShaderProgram = ps;
-        m_osdTextColorUniformLocation = glGetUniformLocation(ps, "TextColor");
-      }
 		}
 
 		PSSamplerSelector point;
@@ -1255,18 +1251,11 @@ void GSDeviceOGL::RenderOsd(GSTexture* dt)
 
   unsigned index = 0;
   for(unsigned group = 0; group < m_osd.NumberOfGroups; ++group) {
-
-    glProgramUniform4f(m_osdFragmentShaderProgram
-                      ,m_osdTextColorUniformLocation
-                      ,m_osd.Color[group].r
-                      ,m_osd.Color[group].g
-                      ,m_osd.Color[group].b
-                      ,m_osd.Color[group].a);
-
     for(unsigned element = 0; element < m_osd.NumberOfElements[group]; ) {
       unsigned j;
       for(j = 0; element < m_osd.NumberOfElements[group] && j < sizeof(m_WorkVertexPT1) / sizeof(m_WorkVertexPT1[0]); ++j, ++element) {
         m_WorkVertexPT1[j].p = m_osd.Vertex[index];
+        m_WorkVertexPT1[j].c = m_osd.Color[group];
         m_WorkVertexPT1[j].t = m_osd.Texcoord[index];
         ++index;
       }

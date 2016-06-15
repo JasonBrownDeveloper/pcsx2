@@ -79,13 +79,8 @@ GSOsdManager::GSOsdManager() : m_font("/usr/share/fonts/truetype/freefont/FreeMo
 
   LoadFont();
 
-  m_log_len = 1; // number of log lines to initialize space for
-  m_log_count = 0;
-  m_log = (log_info*)_aligned_malloc(sizeof(log_info)*m_log_len, 16);
-
-  m_grp_len = 1; // number of groups to initialize space for
   NumberOfGroups = 0;
-  Color = (GSVector4*)_aligned_malloc(sizeof(GSVector4)*m_grp_len, 16);
+  Color.push_back(0);
 
   m_elem_len = 25; // number of characters to initialize space for
   NumberOfElements.push_back(0);
@@ -131,13 +126,7 @@ unsigned GSOsdManager::ExpandAligned(void **mem, size_t block, unsigned len) {
 }
 
 void GSOsdManager::Log(std::string msg) {
-  if(m_log_count == m_log_len)
-    m_log_len = ExpandAligned((void **)&m_log, sizeof(*m_log), m_log_len);
-
-  new(m_log+m_log_count) log_info();
-  m_log[m_log_count].color = GSVector4(1, 1, 0, 1);
-  m_log[m_log_count].msg = msg;
-  ++m_log_count;
+  m_log.push_back((log_info){0xFF00FFFF, msg});
 }
 
 void GSOsdManager::GeneratePrimitives(float m_sx, float m_sy) {
@@ -145,9 +134,9 @@ void GSOsdManager::GeneratePrimitives(float m_sx, float m_sy) {
   float x = -1 + 8 * m_sx;
   float y = 1 - (m_size+2) * m_sy;
 
-  for(unsigned entry = 0; entry < m_log_count; ++entry) {
-    if(NumberOfGroups >= m_grp_len) {
-      m_grp_len = ExpandAligned((void **)&Color, sizeof(*Color), m_grp_len);
+  for(unsigned entry = 0; entry < m_log.size(); ++entry) {
+    if(NumberOfGroups >= Color.size()) {
+      Color.push_back(0);
       NumberOfElements.push_back(0);
     }
 

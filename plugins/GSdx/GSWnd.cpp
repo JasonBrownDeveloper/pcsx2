@@ -75,8 +75,6 @@ void GSWndGL::PopulateGlFunction()
 	GL_EXT_LOAD(glSamplerParameteri);
 	GL_EXT_LOAD(glShaderSource);
 	GL_EXT_LOAD(glUniform1i);
-	GL_EXT_LOAD(glProgramUniform4f);
-	GL_EXT_LOAD(glGetUniformLocation);
 	GL_EXT_LOAD(glUnmapBuffer);
 	GL_EXT_LOAD(glVertexAttribIPointer);
 	GL_EXT_LOAD(glVertexAttribPointer);
