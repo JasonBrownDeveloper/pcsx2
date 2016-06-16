@@ -19,7 +19,6 @@
  */
 
 #include "GSOsdManager.h"
-#include <algorithm>
 
 void GSOsdManager::LoadFont() {
 	FT_Error error = FT_New_Face(m_library, m_font.c_str(), 0, &m_face);
@@ -78,14 +77,6 @@ GSOsdManager::GSOsdManager() : m_font("/usr/share/fonts/truetype/freefont/FreeMo
 	}
 
   LoadFont();
-
-  NumberOfGroups = 0;
-  Color.push_back(0);
-
-  m_elem_len = 25; // number of characters to initialize space for
-  NumberOfElements.push_back(0);
-  Vertex = (GSVector4*)_aligned_malloc(sizeof(GSVector4)*m_elem_len*6, 16);
-  Texcoord = (GSVector2*)_aligned_malloc(sizeof(GSVector2)*m_elem_len*6, 16);
 }
 
 GSOsdManager::~GSOsdManager() {
@@ -116,33 +107,22 @@ void GSOsdManager::upload_texture_atlas(GSTexture* t) {
 	}
 }
 
-unsigned GSOsdManager::ExpandAligned(void **mem, size_t block, unsigned len) {
-  //std::vector doesn't honor alignas so do it old school
-  void *temp = *mem;
-  *mem = _aligned_malloc(block*len*2, 16);
-  memcpy(*mem, temp, block*len);
-  _aligned_free(temp);
-  return len * 2;
-}
-
 void GSOsdManager::Log(std::string msg) {
   m_log.push_back((log_info){0xFF00FFFF, msg});
 }
 
-void GSOsdManager::GeneratePrimitives(float m_sx, float m_sy) {
-  NumberOfGroups = 0;
-  float x = -1 + 8 * m_sx;
-  float y = 1 - (m_size+2) * m_sy;
-
+uint32 GSOsdManager::Size() {
+  uint32 sum = 0;
   for(unsigned entry = 0; entry < m_log.size(); ++entry) {
-    if(NumberOfGroups >= Color.size()) {
-      Color.push_back(0);
-      NumberOfElements.push_back(0);
-    }
+    sum += m_log[entry].msg.length();
+  }
+  return sum * 6;
+}
 
-    Color[NumberOfGroups] = m_log[entry].color;
-    NumberOfElements[NumberOfGroups] = 0;
-
+void GSOsdManager::GeneratePrimitives(GSVertexPT1 *dst, float m_sx, float m_sy) {
+  for(unsigned entry = 0; entry < m_log.size(); ++entry) {
+    float x = -1 + 8 * m_sx;
+    float y = 1 - (m_size+2) * m_sy;
     for(const unsigned char* p = (unsigned char*)m_log[entry].msg.c_str(); *p; p++) {
       float x2 = x + c_info[*p].bl * m_sx;
       float y2 = -y - c_info[*p].bt * m_sy;
@@ -153,34 +133,32 @@ void GSOsdManager::GeneratePrimitives(float m_sx, float m_sy) {
       x += c_info[*p].ax * m_sx;
       y += c_info[*p].ay * m_sy;
 
-      // NOTE: In the future we could use only a SHORT for texture
-      // coordinate. And do the division by the texture size on the vertex
-      // shader (need to drop dx9 compatibility)
-      m_WorkVector4[0] = GSVector4(x2    , -y2    , 0.0f, 0.0f);
-      m_WorkVector4[1] = GSVector4(x2 + w, -y2    , 0.0f, 0.0f);
-      m_WorkVector4[2] = GSVector4(x2    , -y2 - h, 0.0f, 0.0f);
-      m_WorkVector4[3] = GSVector4(x2 + w, -y2    , 0.0f, 0.0f);
-      m_WorkVector4[4] = GSVector4(x2    , -y2 - h, 0.0f, 0.0f);
-      m_WorkVector4[5] = GSVector4(x2 + w, -y2 - h, 0.0f, 0.0f);
-
-      m_WorkVector2[0] = GSVector2(c_info[*p].tx                , 0.0f         );
-      m_WorkVector2[1] = GSVector2(c_info[*p].tx + c_info[*p].tw, 0.0f         );
-      m_WorkVector2[2] = GSVector2(c_info[*p].tx                , c_info[*p].ty);
-      m_WorkVector2[3] = GSVector2(c_info[*p].tx + c_info[*p].tw, 0.0f         );
-      m_WorkVector2[4] = GSVector2(c_info[*p].tx                , c_info[*p].ty);
-      m_WorkVector2[5] = GSVector2(c_info[*p].tx + c_info[*p].tw, c_info[*p].ty);
-
-      if(NumberOfElements[NumberOfGroups]+6 >= m_elem_len) {
-        ExpandAligned((void **)&Vertex, sizeof(*Vertex), m_elem_len);
-        m_elem_len = ExpandAligned((void **)&Texcoord, sizeof(*Texcoord), m_elem_len);
-      }
-      memcpy(&Vertex[NumberOfElements[NumberOfGroups]], m_WorkVector4, 6*sizeof(GSVector4));
-      memcpy(&Texcoord[NumberOfElements[NumberOfGroups]], m_WorkVector2, 6*sizeof(GSVector2));
-
-      NumberOfElements[NumberOfGroups] += 6;
+      dst->p = GSVector4(x2    , -y2    , 0.0f, 0.0f);
+      dst->t = GSVector2(c_info[*p].tx                , 0.0f         );
+      dst->c = m_log[entry].color;
+      ++dst;
+      dst->p = GSVector4(x2 + w, -y2    , 0.0f, 0.0f);
+      dst->t = GSVector2(c_info[*p].tx + c_info[*p].tw, 0.0f         );
+      dst->c = m_log[entry].color;
+      ++dst;
+      dst->p = GSVector4(x2    , -y2 - h, 0.0f, 0.0f);
+      dst->t = GSVector2(c_info[*p].tx                , c_info[*p].ty);
+      dst->c = m_log[entry].color;
+      ++dst;
+      dst->p = GSVector4(x2 + w, -y2    , 0.0f, 0.0f);
+      dst->t = GSVector2(c_info[*p].tx + c_info[*p].tw, 0.0f         );
+      dst->c = m_log[entry].color;
+      ++dst;
+      dst->p = GSVector4(x2    , -y2 - h, 0.0f, 0.0f);
+      dst->t = GSVector2(c_info[*p].tx                , c_info[*p].ty);
+      dst->c = m_log[entry].color;
+      ++dst;
+      dst->p = GSVector4(x2 + w, -y2 - h, 0.0f, 0.0f);
+      dst->t = GSVector2(c_info[*p].tx + c_info[*p].tw, c_info[*p].ty);
+      dst->c = m_log[entry].color;
+      ++dst;
     }
-
-    ++NumberOfGroups;
+    //TODO drop line
   }
 }
 

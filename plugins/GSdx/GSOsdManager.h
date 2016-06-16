@@ -26,8 +26,6 @@
 #include "GSTexture.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include <vector>
-#include <string>
 
 class GSOsdManager {
 	struct character_info {
@@ -65,13 +63,6 @@ class GSOsdManager {
 
   std::vector<log_info> m_log;
 
-  GSVector4 m_WorkVector4[6];
-  GSVector2 m_WorkVector2[6];
-
-  unsigned ExpandAligned(void **mem, size_t block, unsigned len);
-
-  unsigned m_elem_len;
-
 	public:
 
 	GSOsdManager();
@@ -84,11 +75,7 @@ class GSOsdManager {
 	void upload_texture_atlas(GSTexture* t);
   
   void Log(std::string msg); 
+  uint32 Size();
 
-  void GeneratePrimitives(float m_sx, float m_sy);
-  unsigned NumberOfGroups;
-  std::vector<uint32> Color;
-  std::vector<unsigned> NumberOfElements;
-  GSVector4* Vertex;
-  GSVector2* Texcoord;
+  void GeneratePrimitives(GSVertexPT1 *dst, float m_sx, float m_sy);
 };
