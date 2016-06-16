@@ -1247,10 +1247,10 @@ void GSDeviceOGL::RenderOsd(GSTexture* dt)
 
 	// Note scaling could also be done in shader (require gl3/dx10)
 	GSVector2i ds = dt->GetSize();
-  GSVertexPT1 *dst = (GSVertexPT1*)m_va->MapVB(m_osd.Size());
+	GSVertexPT1 *dst = (GSVertexPT1*)m_va->MapVB(m_osd.Size());
 	m_osd.GeneratePrimitives(dst, 2.0f/ds.x, 2.0f/ds.y);
-  DrawPrimitive();
-  m_va->UnmapVB();
+	DrawPrimitive();
+	m_va->UnmapVB();
 
 	EndScene();
 }

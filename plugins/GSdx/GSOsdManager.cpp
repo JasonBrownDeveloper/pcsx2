@@ -30,7 +30,7 @@ void GSOsdManager::LoadFont() {
 		return;
 	}
 
-  LoadSize();
+	LoadSize();
 }
 
 void GSOsdManager::LoadSize() {
@@ -76,7 +76,7 @@ GSOsdManager::GSOsdManager() : m_font("/usr/share/fonts/truetype/freefont/FreeMo
 		return;
 	}
 
-  LoadFont();
+	LoadFont();
 }
 
 GSOsdManager::~GSOsdManager() {
@@ -88,7 +88,7 @@ GSVector2i GSOsdManager::get_texture_font_size() {
 }
 
 void GSOsdManager::upload_texture_atlas(GSTexture* t) {
-  int x = 0;
+	int x = 0;
 	for(uint32 i = ascii_start; i < ascii_stop; i++) {
 		if(FT_Load_Char(m_face, i, FT_LOAD_RENDER)) {
 			fprintf(stderr, "failed to load char '%c' aka %d\n", i, i);
@@ -99,66 +99,66 @@ void GSOsdManager::upload_texture_atlas(GSTexture* t) {
 		if (r.width())
 			t->Update(r, m_face->glyph->bitmap.buffer, m_face->glyph->bitmap.pitch);
 
-    c_info[i].tx = (float)x / atlas_w;
-    c_info[i].ty = (float)c_info[i].bh / atlas_h;
-    c_info[i].tw = (float)c_info[i].bw / atlas_w;
+		c_info[i].tx = (float)x / atlas_w;
+		c_info[i].ty = (float)c_info[i].bh / atlas_h;
+		c_info[i].tw = (float)c_info[i].bw / atlas_w;
 
-    x += c_info[i].bw;
+		x += c_info[i].bw;
 	}
 }
 
 void GSOsdManager::Log(std::string msg) {
-  m_log.push_back((log_info){0xFF00FFFF, msg});
+	m_log.push_back((log_info){0xFF00FFFF, msg});
 }
 
 uint32 GSOsdManager::Size() {
-  uint32 sum = 0;
-  for(unsigned entry = 0; entry < m_log.size(); ++entry) {
-    sum += m_log[entry].msg.length();
-  }
-  return sum * 6;
+	uint32 sum = 0;
+	for(unsigned entry = 0; entry < m_log.size(); ++entry) {
+		sum += m_log[entry].msg.length();
+	}
+	return sum * 6;
 }
 
 void GSOsdManager::GeneratePrimitives(GSVertexPT1 *dst, float m_sx, float m_sy) {
-  for(unsigned entry = 0; entry < m_log.size(); ++entry) {
-    float x = -1 + 8 * m_sx;
-    float y = 1 - (m_size+2) * m_sy;
-    for(const unsigned char* p = (unsigned char*)m_log[entry].msg.c_str(); *p; p++) {
-      float x2 = x + c_info[*p].bl * m_sx;
-      float y2 = -y - c_info[*p].bt * m_sy;
-      float w = c_info[*p].bw * m_sx;
-      float h = c_info[*p].bh * m_sy;
+	for(unsigned entry = 0; entry < m_log.size(); ++entry) {
+		float x = -1 + 8 * m_sx;
+		float y = 1 - (m_size+2) * m_sy;
+		for(const unsigned char* p = (unsigned char*)m_log[entry].msg.c_str(); *p; p++) {
+			float x2 = x + c_info[*p].bl * m_sx;
+			float y2 = -y - c_info[*p].bt * m_sy;
+			float w = c_info[*p].bw * m_sx;
+			float h = c_info[*p].bh * m_sy;
 
-      /* Advance the cursor to the start of the next character */
-      x += c_info[*p].ax * m_sx;
-      y += c_info[*p].ay * m_sy;
+			/* Advance the cursor to the start of the next character */
+			x += c_info[*p].ax * m_sx;
+			y += c_info[*p].ay * m_sy;
 
-      dst->p = GSVector4(x2    , -y2    , 0.0f, 0.0f);
-      dst->t = GSVector2(c_info[*p].tx                , 0.0f         );
-      dst->c = m_log[entry].color;
-      ++dst;
-      dst->p = GSVector4(x2 + w, -y2    , 0.0f, 0.0f);
-      dst->t = GSVector2(c_info[*p].tx + c_info[*p].tw, 0.0f         );
-      dst->c = m_log[entry].color;
-      ++dst;
-      dst->p = GSVector4(x2    , -y2 - h, 0.0f, 0.0f);
-      dst->t = GSVector2(c_info[*p].tx                , c_info[*p].ty);
-      dst->c = m_log[entry].color;
-      ++dst;
-      dst->p = GSVector4(x2 + w, -y2    , 0.0f, 0.0f);
-      dst->t = GSVector2(c_info[*p].tx + c_info[*p].tw, 0.0f         );
-      dst->c = m_log[entry].color;
-      ++dst;
-      dst->p = GSVector4(x2    , -y2 - h, 0.0f, 0.0f);
-      dst->t = GSVector2(c_info[*p].tx                , c_info[*p].ty);
-      dst->c = m_log[entry].color;
-      ++dst;
-      dst->p = GSVector4(x2 + w, -y2 - h, 0.0f, 0.0f);
-      dst->t = GSVector2(c_info[*p].tx + c_info[*p].tw, c_info[*p].ty);
-      dst->c = m_log[entry].color;
-      ++dst;
-    }
-    //TODO drop line
-  }
+			dst->p = GSVector4(x2    , -y2    , 0.0f, 0.0f);
+			dst->t = GSVector2(c_info[*p].tx                , 0.0f         );
+			dst->c = m_log[entry].color;
+			++dst;
+			dst->p = GSVector4(x2 + w, -y2    , 0.0f, 0.0f);
+			dst->t = GSVector2(c_info[*p].tx + c_info[*p].tw, 0.0f         );
+			dst->c = m_log[entry].color;
+			++dst;
+			dst->p = GSVector4(x2    , -y2 - h, 0.0f, 0.0f);
+			dst->t = GSVector2(c_info[*p].tx                , c_info[*p].ty);
+			dst->c = m_log[entry].color;
+			++dst;
+			dst->p = GSVector4(x2 + w, -y2    , 0.0f, 0.0f);
+			dst->t = GSVector2(c_info[*p].tx + c_info[*p].tw, 0.0f         );
+			dst->c = m_log[entry].color;
+			++dst;
+			dst->p = GSVector4(x2    , -y2 - h, 0.0f, 0.0f);
+			dst->t = GSVector2(c_info[*p].tx                , c_info[*p].ty);
+			dst->c = m_log[entry].color;
+			++dst;
+			dst->p = GSVector4(x2 + w, -y2 - h, 0.0f, 0.0f);
+			dst->t = GSVector2(c_info[*p].tx + c_info[*p].tw, c_info[*p].ty);
+			dst->c = m_log[entry].color;
+			++dst;
+		}
+		//TODO drop line
+	}
 }
 

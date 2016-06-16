@@ -164,10 +164,10 @@ class GSBufferOGL {
 		}
 
 		return m_buffer_ptr + offset;
-  }
+	}
 
 	void unmap()
-  {
+	{
 		glFlushMappedBufferRange(m_target, m_start * STRIDE, m_count * STRIDE);
 	}
 
@@ -179,7 +179,7 @@ class GSBufferOGL {
 
 		void *dst = map(count);
 		memcpy(dst, src, count * STRIDE);
-    unmap();
+		unmap();
 	}
 
 	void EndScene()
@@ -285,7 +285,7 @@ public:
 	void SetTopology(GLenum topology) { m_topology = topology; }
 
 	void *MapVB(size_t count) { return m_vb->map(count); }
-  void UnmapVB() { m_vb->unmap(); }
+	void UnmapVB() { m_vb->unmap(); }
 	void UploadVB(const void* vertices, size_t count) { m_vb->upload(vertices, count); }
 
 	void UploadIB(const void* index, size_t count) {

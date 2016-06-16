@@ -467,8 +467,6 @@ public:
 
 	GSTextureOGL* m_font;
 
-  GSVertexPT1 m_WorkVertexPT1[256];
-
 	GSTexture* CreateSurface(int type, int w, int h, bool msaa, int format);
 	GSTexture* FetchSurface(int type, int w, int h, bool msaa, int format);
 
@@ -477,7 +475,7 @@ public:
 	void DoFXAA(GSTexture* sTex, GSTexture* dTex) final;
 	void DoShadeBoost(GSTexture* sTex, GSTexture* dTex) final;
 	void DoExternalFX(GSTexture* sTex, GSTexture* dTex) final;
-  void RenderOsd(GSTexture* dt);
+	void RenderOsd(GSTexture* dt);
 
 	void OMAttachRt(GSTextureOGL* rt = NULL);
 	void OMAttachDs(GSTextureOGL* ds = NULL);

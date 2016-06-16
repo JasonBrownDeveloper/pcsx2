@@ -40,13 +40,13 @@ class GSOsdManager {
 
 		float tx; // x offset of glyph
 		float ty; // y offset of glyph
-    float tw;
+		float tw;
 	} c_info[128];
 
 	FT_Library m_library;
 	FT_Face	   m_face;
-  std::string m_font;
-  FT_UInt    m_size;
+	std::string m_font;
+	FT_UInt    m_size;
 
 	uint32 atlas_h;
 	uint32 atlas_w;
@@ -56,26 +56,26 @@ class GSOsdManager {
 
 	void compute_glyph_size();
 
-  struct log_info {
-    uint32 color;
-    std::string msg;
-  };
+	struct log_info {
+		uint32 color;
+		std::string msg;
+	};
 
-  std::vector<log_info> m_log;
+	std::vector<log_info> m_log;
 
 	public:
 
 	GSOsdManager();
 	~GSOsdManager();
 
-  void LoadFont();
-  void LoadSize();
+	void LoadFont();
+	void LoadSize();
 
 	GSVector2i get_texture_font_size();
 	void upload_texture_atlas(GSTexture* t);
-  
-  void Log(std::string msg); 
-  uint32 Size();
 
-  void GeneratePrimitives(GSVertexPT1 *dst, float m_sx, float m_sy);
+	void Log(std::string msg);
+	uint32 Size();
+
+	void GeneratePrimitives(GSVertexPT1 *dst, float m_sx, float m_sy);
 };

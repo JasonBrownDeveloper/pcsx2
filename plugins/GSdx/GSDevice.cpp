@@ -41,7 +41,7 @@ GSDevice::GSDevice()
 	memset(&m_vertex, 0, sizeof(m_vertex));
 	memset(&m_index, 0, sizeof(m_index));
 
-  m_osd.Log("Oh my gosh !");
+	m_osd.Log("Oh my gosh !");
 }
 
 GSDevice::~GSDevice()
@@ -121,7 +121,7 @@ void GSDevice::Present(const GSVector4i& r, int shader)
 
 		Present(m_current, m_backbuffer, GSVector4(r), s_shader[shader]);
 
-    RenderOsd(m_backbuffer);
+		RenderOsd(m_backbuffer);
 	}
 
 	Flip();
